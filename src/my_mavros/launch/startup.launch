@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="robot" value="iris"/>
+    <arg name="ID" value="0"/>
+    <arg name="Mode" value="OFFBOARD" />
+    <arg name="author" value="Lex"/>
+    <arg name="fcu_url" value="/dev/ttyACM0:115200" />
+    <arg name="control_mode" value="2"/>
+
+    <include file="$(find mavros)/launch/px4.launch">
+        <arg name="fcu_url" value="$(arg fcu_url)"/>
+    </include>
+
+    <node pkg="my_mavros" name="my_mavros_node" type="my_mavros_node" output="screen">
+        <param name="robot" value="$(arg robot)" type="string"/>
+        <param name="ID" value="$(arg ID)" type="int"/>"
+        <param name="Mode" value="$(arg Mode)" type="string"/>
+        <param name="author" value="$(arg author)" type="string"/>
+    </node>
+
+    <node pkg="my_mavros" name="my_control_node" type="my_control_node" output="screen">
+        <param name="control_mode" value="$(arg control_mode)" type="int"/>
+        <param name="author" value="$(arg author)" type="string"/>
+    </node>
+</launch>
