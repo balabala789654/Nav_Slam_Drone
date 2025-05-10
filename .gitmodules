@@ -1,7 +1,9 @@
 [submodule "src/VINS-Mono"]
 	path = src/VINS-Mono
 	url = git@github.com:HKUST-Aerial-Robotics/VINS-Mono.git
-
 [submodule "src/FAST-LIO"]
 	path = src/FAST-LIO
 	url = git@github.com:hku-mars/FAST_LIO.git
+[submodule "src/VINS-Fusion"]
+	path = src/VINS-Fusion
+	url = git@github.com:HKUST-Aerial-Robotics/VINS-Fusion.git

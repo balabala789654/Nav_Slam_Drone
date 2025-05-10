@@ -37,4 +37,10 @@ add_executable(my_control_node src/my_keyboard_control.cpp)
 target_link_libraries(my_control_node
   ${catkin_LIBRARIES}
 )
+
+add_executable(my_vio_pose_node src/my_vio_pose.cpp)
+
+target_link_libraries(my_vio_pose_node
+  ${catkin_LIBRARIES}
+)
 # add_dependencies(my_mavros_node ${${PROJECT_NAME}_EXPORTED_TARGETS})

@@ -22,6 +22,7 @@ catkin_make -DCATKIN_WHITELIST_PACKAGES="quadrotor_msgs;cmake_utils;map_generato
 catkin_make -DCATKIN_WHITELIST_PACKAGES="my_mavros"
 catkin_make -DCATKIN_WHITELIST_PACKAGES="ar_demo;benchmark_publisher;camera_model;data_generator;feature_tracker;pose_graph;vins_estimator"
 catkin_make -DCATKIN_WHITELIST_PACKAGES="my_synctime"
+catkin_make -DCATKIN_WHITELIST_PACKAGES="camera_models;global_fusion;loop_fusion;vins"
 # if [ "$1" = "lio" ]; then
 #     echo "build fast_lio"
 #     catkin_make -DCATKIN_WHITELIST_PACKAGES="fast_lio"

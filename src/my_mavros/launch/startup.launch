@@ -6,11 +6,17 @@
     <arg name="Mode" value="OFFBOARD" />
     <arg name="author" value="Lex"/>
     <arg name="fcu_url" value="/dev/ttyACM0:115200" />
-    <arg name="control_mode" value="2"/>
-
+    <arg name="control_mode" value="2"/>  <!-- 2为位置控制， 1为速度控制， 默认控制模式为2 -->
     <include file="$(find mavros)/launch/px4.launch">
         <arg name="fcu_url" value="$(arg fcu_url)"/>
     </include>
+
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch" />
+
+    <include file="$(find vins_estimator)/launch/realsense_color.launch" />
+
+    <node pkg="my_mavros" name="my_vio_pose_node" type="my_vio_pose_node" output="screen">
+    </node>
 
     <node pkg="my_mavros" name="my_mavros_node" type="my_mavros_node" output="screen">
         <param name="robot" value="$(arg robot)" type="string"/>
@@ -23,4 +29,7 @@
         <param name="control_mode" value="$(arg control_mode)" type="int"/>
         <param name="author" value="$(arg author)" type="string"/>
     </node>
+
+    <!-- <include file="$(find vins_estimator)/launch/vins_rviz.launch"/> -->
+
 </launch>
