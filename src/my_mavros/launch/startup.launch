@@ -16,31 +16,35 @@
         <arg name="fcu_url" value="$(arg fcu_url)"/>
     </include>
 
-    <!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch" /> -->
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch" />
 
-    <!-- <include file="$(find vins_estimator)/launch/realsense_color.launch" /> -->
+    <!-- 使用VINS-Mono -->
+    <!-- <include file="$(find vins_estimator)/launch/realsense_color.launch" />  -->
 
-    <node pkg="my_mavros" name="my_vio_pose_node" type="my_vio_pose_node" output="screen" />
+    <!-- 使用VINS-Fusion -->
+    <node name="vins_fusion" pkg="vins"  type="vins_node" output="screen" args="$(find vins)/../config/myconfig/myconfig.yaml"/> 
 
-    <node pkg="my_mavros" name="my_mavros_node" type="my_mavros_node" output="screen">
+    <!-- <node pkg="my_mavros" name="my_vio_pose_node" type="my_vio_pose_node" output="screen" /> -->
+
+    <!-- <node pkg="my_mavros" name="my_mavros_node" type="my_mavros_node" output="screen">
         <param name="robot" value="$(arg robot)" type="string"/>
         <param name="ID" value="$(arg ID)" type="int"/>"
         <param name="Mode" value="$(arg Mode)" type="string"/>
         <param name="author" value="$(arg author)" type="string"/>
-    </node>
+    </node> -->
 
     <!-- <node pkg="my_mavros" name="my_control_node" type="my_control_node" output="screen">
         <param name="control_mode" value="$(arg control_mode)" type="int"/>
         <param name="author" value="$(arg author)" type="string"/>
     </node> -->
 
-    <include file="$(find ego_planner)/launch/my_planner.launch">
+    <!-- <include file="$(find ego_planner)/launch/my_planner.launch">
         <arg name="author" value="$(arg author)"/>
         <arg name="odom_topic" value="$(arg odom_topic)"/>
         <arg name="map_size_x" value="$(arg map_size_x)"/>
         <arg name="map_size_y" value="$(arg map_size_y)"/>
         <arg name="map_size_z" value="$(arg map_size_z)"/>
-    </include>
+    </include> -->
     <!-- <include file="$(find vins_estimator)/launch/vins_rviz.launch"/> -->
 
 </launch>

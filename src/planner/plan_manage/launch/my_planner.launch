@@ -1,13 +1,13 @@
 <launch>
   <!-- size of map, change the size inflate x, y, z according to your application -->
-  <arg name="map_size_x" />
-  <arg name="map_size_y" />
-  <arg name="map_size_z" />
+    <arg name="map_size_x" default="50"/>
+    <arg name="map_size_y" default="50"/>
+    <arg name="map_size_z" default="3.0"/>
 
   <!-- topic of your odometry such as VIO or LIO -->
-  <arg name="odom_topic" />
+  <arg name="odom_topic" value="/vins_estimator/odometry"/>
 
-  <arg name="author"/>
+  <arg name="author" default="user"/>
 
   <!-- main algorithm params -->
   <include file="$(find ego_planner)/launch/advanced_param.xml">
@@ -78,12 +78,12 @@
     <param name="traj_server/time_forward" value="1.0" type="double"/>
   </node>
 
-  <!-- <node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator" output="screen">
+  <node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator" output="screen">
     <remap from="~odom" to="$(arg odom_topic)"/>        
     <remap from="~goal" to="/move_base_simple/goal"/>
     <remap from="~traj_start_trigger" to="/traj_start_trigger" />
     <param name="waypoint_type" value="manual-lonely-waypoint"/>    
-  </node> -->
+  </node>
 
   <include file="$(find ego_planner)/launch/rviz.launch"/>
 
