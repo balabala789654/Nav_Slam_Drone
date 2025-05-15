@@ -6,6 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Pose1
+        - /Odometry1
         - /Odometry1/Shape1
       Splitter Ratio: 0.5
     Tree Height: 589
@@ -65,7 +67,7 @@ Visualization Manager:
       Shaft Length: 1
       Shaft Radius: 0.05000000074505806
       Shape: Arrow
-      Topic: /mavros/vision_pose/pose
+      Topic: /mavros/local_position/pose
       Unreliable: false
       Value: true
     - Angle Tolerance: 0.10000000149011612
@@ -100,14 +102,14 @@ Visualization Manager:
         Shaft Length: 1
         Shaft Radius: 0.05000000074505806
         Value: Arrow
-      Topic: /vins_estimator/odometry
+      Topic: /mavros/local_position/odom
       Unreliable: false
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: world
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -131,7 +133,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.303963661193848
+      Distance: 4.767802715301514
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -139,17 +141,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 0.7691075205802917
+        Y: -0.7765786647796631
+        Z: 1.376564621925354
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8003982305526733
+      Pitch: 1.0403982400894165
       Target Frame: <Fixed Frame>
-      Yaw: 3.8635830879211426
+      Yaw: 0.763582706451416
     Saved: ~
 Window Geometry:
   Displays:

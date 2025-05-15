@@ -30,7 +30,8 @@ class Control_{
         std::string Author;        
         enum control_mode_ {
             vel = 1,
-            pos = 2
+            pos = 2,
+            auto_ego = 3
         };
         control_mode_ control_mode;
         int set_control_mode;
@@ -56,11 +57,16 @@ void Control_::Init(void){
     nh.param("control_mode", set_control_mode, 2);
 
     communicate_state.data = false;
-    if (set_control_mode == vel)
-    {
+    if (set_control_mode == vel){
         control_mode = vel;
     }else if(set_control_mode == pos){
         control_mode = pos;
+    }else if(set_control_mode == auto_ego){
+        control_mode = auto_ego;
+    }
+    
+    if(control_mode != pos){
+        return;
     }
     
     KeyBoard_timer = nh.createTimer(ros::Duration(0.02), &Control_::KeyBoard_Input_callback, this);

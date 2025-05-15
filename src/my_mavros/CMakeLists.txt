@@ -11,12 +11,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  quadrotor_msgs
 )
 
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES my_mavros
- CATKIN_DEPENDS roscpp rospy std_msgs
+ CATKIN_DEPENDS roscpp rospy std_msgs quadrotor_msgs
 #  DEPENDS system_lib
 )
 

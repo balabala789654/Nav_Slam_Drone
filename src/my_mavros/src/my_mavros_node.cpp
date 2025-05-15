@@ -7,6 +7,10 @@
 #include "mavros_msgs/ParamGet.h"
 #include "mavros_msgs/PositionTarget.h"
 #include "geometry_msgs/PoseStamped.h"
+#include "quadrotor_msgs/PositionCommand.h"
+#include "geometry_msgs/Quaternion.h"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2/LinearMath/Matrix3x3.h"
 #include <string>
 #include <iostream>
 #include "std_msgs/Char.h"
@@ -19,7 +23,7 @@ class my_mavros{
         void Init(void);
         void state_callback(const mavros_msgs::State::ConstPtr& msg);
         void KeyBoardInput_callback(const std_msgs::Char::ConstPtr& msg);
-
+        void ego_pos_callback(const quadrotor_msgs::PositionCommand::ConstPtr& msg);
         void DroneControl_callback(const ros::TimerEvent &e);
     private:
         char ch;
@@ -34,13 +38,16 @@ class my_mavros{
         mavros_msgs::ParamSet Param_S;
         mavros_msgs::ParamValue Param_S_Value;
         mavros_msgs::ParamGet Param_G;
+        quadrotor_msgs::PositionCommand pos_cmd;
+        geometry_msgs::Quaternion q;
         ros::Publisher PosTarget_pub;
         ros::Publisher pub;
         ros::Publisher pub_communicate_state;
         std_msgs::Char ch_in;
         enum control_mode_ {
             vel = 1,
-            pos = 2
+            pos = 2,
+            auto_ego = 3
         };
         control_mode_ control_mode;
         int set_control_mode;
@@ -69,17 +76,21 @@ void my_mavros::Init(void){
         control_mode = vel;
     }else if(set_control_mode == pos){
         control_mode = pos;
+    }else if(set_control_mode == auto_ego){
+        control_mode = auto_ego;
     }
 
     ROS_INFO_STREAM("\nrobot: "+ robot + "\nMode: " + Mode + "\nID: " + std::to_string(ID));
 
     pub = n.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_pos", 10);
     PosTarget_pub = n.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 10);
+
     pub_communicate_state = n.advertise<std_msgs::Bool>("/" + author + "/control/state", 10);
 
     ros::Subscriber sub = n.subscribe<mavros_msgs::State>("/mavros/state", 10, &my_mavros::state_callback, this);
     ros::Subscriber sub1 = n.subscribe<std_msgs::Char>("/" + author + "/control/key", 10, &my_mavros::KeyBoardInput_callback, this);
-    
+    ros::Subscriber ego_pos_sub = n.subscribe<quadrotor_msgs::PositionCommand>("/" + author + "/control/egp_pos_cmd", 10, &my_mavros::ego_pos_callback, this);
+
     arming_client = n.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
     set_mode_client = n.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
     Set_Param_client = n.serviceClient<mavros_msgs::ParamSet>("/mavros/param/set");
@@ -102,14 +113,14 @@ void my_mavros::Init(void){
         // PosTarget.yaw = 0;
         PosTarget.type_mask = PosTarget.IGNORE_PX + PosTarget.IGNORE_PY + PosTarget.IGNORE_PZ  + PosTarget.IGNORE_AFX + PosTarget.IGNORE_AFY + PosTarget.IGNORE_AFZ + PosTarget.IGNORE_YAW;
         PosTarget.coordinate_frame = 1;
-    }else if(control_mode == pos){
+    }else if(control_mode == pos || control_mode == auto_ego){
         PosTarget.position.x=0;
         PosTarget.position.y=0;
         PosTarget.position.z=0;
         // PosTarget.yaw_rate = 0;
         PosTarget.yaw = 0;
         PosTarget.type_mask = PosTarget.IGNORE_VX + PosTarget.IGNORE_VY + PosTarget.IGNORE_VZ + PosTarget.IGNORE_AFX + PosTarget.IGNORE_AFY + PosTarget.IGNORE_AFZ + PosTarget.IGNORE_YAW_RATE;
-        PosTarget.coordinate_frame = 1;       
+        PosTarget.coordinate_frame = 1;
     }
 
     offb_set_mode.request.custom_mode = std::string("AUTO.LAND");
@@ -131,7 +142,7 @@ void my_mavros::Init(void){
     for(int i=0; i<5 && ros::ok(); i++){
         PosTarget_pub.publish(PosTarget);
         r.sleep();
-    }    
+    }
 
     if(Set_Param_client.call(Param_S) && Param_S.response.success){
         ROS_INFO("Set Param COM_RCL_EXCEPT 4");
@@ -149,9 +160,10 @@ void my_mavros::Init(void){
     Get_Param_client.call(Param_G);
     ROS_INFO_STREAM("COM_RCL_EXCEPT: " + std::to_string(Param_G.response.value.integer));
 
-    communicate_state.data = true;
-    pub_communicate_state.publish(communicate_state);
-
+    if(control_mode == pos){
+        communicate_state.data = true;
+        pub_communicate_state.publish(communicate_state);
+    }
     ros::spin(); //注意，spin()作用是一个死循环，但是与while的区别是只有spin()才可以进入回调函数。
     
     // while(ros::ok()){
@@ -222,6 +234,10 @@ void my_mavros::KeyBoardInput_callback(const std_msgs::Char::ConstPtr& msg){
             PosTarget.position.z += delta_MAX;
         }else if(ch_in.data == 'k'){
             PosTarget.position.z -= delta_MAX;
+        }else if(ch_in.data == 'q'){
+            PosTarget.yaw += delta_MAX;
+        }else if(ch_in.data == 'e'){
+            PosTarget.yaw -= delta_MAX;
         }else{}
         if(ch_in.data != ' ')
             ROS_INFO_STREAM("\ncontrol_mode: pos" << "\npos_x: " << PosTarget.position.x << "\npos_y: " << PosTarget.position.y << "\npos_z" << PosTarget.position.z);
@@ -229,6 +245,23 @@ void my_mavros::KeyBoardInput_callback(const std_msgs::Char::ConstPtr& msg){
     }
 }
 
+void my_mavros::ego_pos_callback(const quadrotor_msgs::PositionCommand::ConstPtr& msg){
+    PosTarget.position.x = msg->position.x;
+    PosTarget.position.y = msg->position.y;
+    PosTarget.position.z = msg->position.z;
+
+    q.x = 0.0;
+    q.y = 0.0;
+    q.z = sin(msg->yaw/2);
+    q.w = cos(msg->yaw/2);
+
+    tf2::Quaternion tf_q(q.x, q.y, q.z, q.w);
+    tf2::Matrix3x3 tf_mat(tf_q);
+    double roll, pitch, yaw;
+    tf_mat.getRPY(roll, pitch, yaw);
+
+    PosTarget.yaw = yaw;
+}
 int main(int argc, char *argv[])
 {
     ros::init(argc, argv, "hello");
